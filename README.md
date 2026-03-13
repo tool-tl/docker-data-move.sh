@@ -1,5 +1,7 @@
 # docker-data-move.sh
 
+[中文说明 / README.zh.md](./README.zh.md)
+
 An interactive helper for moving Docker's `data-root` to a larger disk safely.
 
 It builds on the original `docker-data-move.sh` idea, but adds:
