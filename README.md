@@ -1,10 +1,10 @@
-# docker-data-move.sh
+﻿# docker-data-move.sh
 
 [中文说明 / README.zh.md](./README.zh.md)
 
 An interactive helper for moving Docker's `data-root` to a larger disk safely.
 
-It builds on the original `docker-data-move.sh` idea, but adds:
+It includes:
 
 - automatic detection of the current Docker data directory
 - automatic disk scanning and free-space comparison
@@ -12,6 +12,7 @@ It builds on the original `docker-data-move.sh` idea, but adds:
 - interactive selection or `--auto` mode
 - safer pre-checks for free space, path nesting, and `daemon.json`
 - backup of the old Docker data directory and Docker config
+- clearer failures for non-interactive runs when no valid target can be auto-selected
 
 ## Why this exists
 
@@ -21,7 +22,7 @@ A common production problem looks like this:
 - Docker overlay layers live under the full filesystem
 - another mount such as `/data` still has hundreds of GB free
 
-This script helps you move Docker data to the larger mount with less manual work.
+This script helps move Docker data to the larger mount with less manual work and better guardrails.
 
 ## What it does
 
@@ -67,16 +68,26 @@ Allow using a non-empty target directory:
 sudo ALLOW_NONEMPTY=1 ./docker-data-move.sh --path /data/docker-data
 ```
 
+## Non-interactive behavior
+
+If `--auto` cannot find a valid target path, the script now exits with a clear error instead of silently waiting for input in a non-interactive pipe execution.
+
+If you already know the destination, use:
+
+```bash
+sudo ./docker-data-move.sh --path /data/docker-data --yes
+```
+
 ## Example
 
-If your machine looks like:
+If your machine looks like this:
 
 ```text
 /home   100% used
 /data   plenty of free space
 ```
 
-the script will typically recommend a target like:
+the script will typically recommend:
 
 ```text
 /data/docker-data

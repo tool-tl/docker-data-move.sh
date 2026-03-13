@@ -37,6 +37,10 @@ die()  { echo -e "\n[ERROR] $*\n" >&2; exit 1; }
 info() { echo "[INFO]  $*"; }
 warn() { echo "[WARN]  $*"; }
 
+is_interactive_stdin() {
+  [[ -t 0 ]]
+}
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -255,6 +259,11 @@ pick_target_path() {
 
   if (( ${#CANDIDATE_PATHS[@]} == 0 )); then
     warn "No recommended target path was detected automatically."
+    if (( AUTO_MODE == 1 )); then
+      die "Auto mode could not find a suitable target path. Re-run with --path /new/docker-data-root"
+    fi
+    is_interactive_stdin || die \
+      "No recommended target path was detected and no interactive terminal is available. Re-run with --path /new/docker-data-root"
     read -r -p "Enter a custom Docker data-root path: " NEW_PATH
     validate_path_rules "$NEW_PATH"
     validate_target_space "$NEW_PATH"
@@ -276,6 +285,8 @@ pick_target_path() {
   fi
 
   local choice
+  is_interactive_stdin || die \
+    "Interactive target selection requires a terminal. Re-run with --auto or --path /new/docker-data-root"
   while true; do
     read -r -p "Choose a target [1-${#CANDIDATE_PATHS[@]} or c]: " choice
     case "$choice" in
